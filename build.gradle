@@ -1,0 +1,72 @@
+plugins {
+  id 'com.google.cloud.tools.jib' version '0.10.1'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+sourceCompatibility = targetCompatibility = 1.8
+version = '0.0.1'
+mainClassName = 'spcr.api.Controller'
+
+configurations {
+	provided
+}
+
+sourceSets {
+	main { compileClasspath += configurations.provided }
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//　基本
+	provided 'org.projectlombok:lombok:1.16.20'
+	compile 'com.google.code.findbugs:jsr305:2.+'
+
+	//WebFramework
+	compile "com.sparkjava:spark-core:2.7.2"
+
+	// 設定ファイル用 http://constretto.org/
+	compile 'org.constretto:constretto-core:2.2.+'
+
+	testCompile 'junit:junit:4.+'
+}
+
+compileJava { options.encoding = 'UTF-8' }
+
+test {
+	testLogging.showStandardStreams = true
+}
+
+eclipse {
+	project.name = 'JibSample'
+
+	classpath {
+		plusConfigurations += [configurations.provided]
+	}
+
+	jdt {
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
+	}
+}
+
+jib {
+  from {
+    image = 'circleci/java'
+  }
+  to {
+    image = 'API repo'
+  }
+  container {
+    jvmFlags = ['-Xms512m']
+    mainClass = 'spcr.api.Controller'
+    environment = [ENV:'develop', LANG:'ja_JP.UTF-8']
+  }
+}
+jib.container.useCurrentTimestamp = true
+

@@ -1,0 +1,42 @@
+version: 2
+
+defaults: &defaults
+  working_directory: /project
+
+jobs:
+  build:
+    working_directory: /home/circleci/project
+    docker:
+      - image: circleci/java
+
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: download gradle
+          command: ./gradlew
+      - run:
+          name: whitebox test
+          command: ./gradlew test
+      - run:
+          name: create api image
+          command: ./gradlew jibDockerBuild
+      - run:
+          name: create test image
+          command: cd ./test ; ../gradlew jibDockerBuild
+      - run:
+          name: run api
+          command: docker run -itd テスト対象のイメージ
+      - run:
+          name: blackbox test
+          command: docker run テストを実行するイメージ
+      - run:
+          name: download go
+          command: wget -O - "https://redirector.gvt1.com/edgedl/go/go1.9.2.linux-amd64.tar.gz" | tar zxvf - -C /home/circleci/project
+      - run:
+          name: get ecr-helper
+          command: ./go/bin/go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
+      - run:
+          name: push ecr
+          command: export PATH=$PATH:/home/circleci/go/bin/ ; ./gradlew jib
+

@@ -1,0 +1,45 @@
+plugins {
+  id 'com.google.cloud.tools.jib' version '0.10.1'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+sourceCompatibility = targetCompatibility = 1.8
+version = '0.0.1'
+mainClassName = 'spcr.api.APITester'
+
+configurations {
+	provided
+}
+
+sourceSets {
+	main { compileClasspath += configurations.provided }
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+    provided 'org.projectlombok:lombok:1.16.20'
+    compile 'com.google.code.findbugs:jsr305:2.+'
+    compile group: 'com.jayway.restassured', name: 'rest-assured', version: '2.9.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+    compile 'junit:junit:4.+'
+}
+
+jib {
+  from {
+	//ベースイメージ
+    image = 'circleci/java'
+  }
+  to {
+    image = 'API Tester repo'
+  }
+  container {
+    jvmFlags = ['-Xms512m']
+    mainClass = 'spcr.api.APITester'
+  }
+}
+jib.container.useCurrentTimestamp = true
