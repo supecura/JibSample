@@ -1,5 +1,5 @@
 plugins {
-  id 'com.google.cloud.tools.jib' version '0.10.1'
+	id 'com.google.cloud.tools.jib' version '0.10.1'
 }
 
 apply plugin: 'java'
@@ -15,7 +15,9 @@ configurations {
 }
 
 sourceSets {
-	main { compileClasspath += configurations.provided }
+	main {
+		compileClasspath += configurations.provided
+	}
 }
 
 repositories {
@@ -36,7 +38,9 @@ dependencies {
 	testCompile 'junit:junit:4.+'
 }
 
-compileJava { options.encoding = 'UTF-8' }
+compileJava {
+	options.encoding = 'UTF-8'
+}
 
 test {
 	testLogging.showStandardStreams = true
@@ -55,18 +59,10 @@ eclipse {
 	}
 }
 
-jib {
-  from {
-    image = 'circleci/java'
-  }
-  to {
-    image = 'API repo'
-  }
-  container {
-    jvmFlags = ['-Xms512m']
-    mainClass = 'spcr.api.Controller'
-    environment = [ENV:'develop', LANG:'ja_JP.UTF-8']
-  }
-}
+jib.from.image = 'circleci/java'
+jib.to.image = 'API repo'
 jib.container.useCurrentTimestamp = true
+jib.container.jvmFlags = ['-Xms512m']
+jib.container.mainClass = 'spcr.api.Controller'
+jib.container.environment = [ENV:'develop', LANG:'ja_JP.UTF-8']
 
